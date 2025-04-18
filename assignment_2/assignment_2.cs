@@ -70,10 +70,15 @@ namespace FileTypeReport {
         // sizesIndex up to correctly select the most pertinent size
         // Ex: 3145728 bytes / 1024 twice == "3 MB"
         {
-        formattedSize /= 1024; 
-        sizesIndex++;
+            formattedSize /= 1024; 
+            sizesIndex++;
         }
-        }
+        // String formatting
+        // {0:0.##} : use first parameter formattedSize, :0.## show a digit before
+        // the decimal, optional to use 2 following digits
+        // Ex: byteSize 3955623 should return "3.77 MB" 
+        return string.Format("{0:0.##} {1}", formattedSize, sizes[sizesIndex])
+    }
 
     // Create an HTML report file
     private static XDocument CreateReport(IEnumerable<string> files) {
