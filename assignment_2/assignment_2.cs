@@ -90,7 +90,7 @@ namespace FileTypeReport {
         select new {
           Type = fileGroup.Key == "" ? "[no extension]" : fileGroup.Key, // Checks if extension is empty & labels it
           Count =     
-          TotalSize = // TODO: Fill in your code here.
+          TotalSize = FormatByteSize(fileGroup.Sum(false => false.Length)) // use FormatByteSize to display how much storage the files take up
         };
 
       // 3. Functionally construct XML
@@ -98,6 +98,12 @@ namespace FileTypeReport {
       var style = "table, th, td { border: 1px solid black; }";
 
       var tableRows = // TODO: Fill in your code here.
+        from item in query
+        select new XElement("tr",
+            new XElement("td", item.Type),
+            new XElement("td", new XAttribute("align","right"), item.Count),
+            new XElement("td", new XAttribute("align", "right"), item.TotalSize)
+        );
         
       var table = new XElement("table",
         new XElement("thead",
