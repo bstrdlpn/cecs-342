@@ -89,8 +89,8 @@ namespace FileTypeReport {
         group file by ext into fileGroup            // organize all files into groups
         select new {
           Type = fileGroup.Key == "" ? "[no extension]" : fileGroup.Key, // Checks if extension is empty & labels it
-          Count =     
-          TotalSize = FormatByteSize(fileGroup.Sum(false => false.Length)) // use FormatByteSize to display how much storage the files take up
+          Count = fileGroup.Count(), //count the amount of that file type in the group
+          TotalSize = FormatByteSize(fileGroup.Sum(f => f.Length)) //use formatbytesize to display how much storage the files take up
         };
 
       // 3. Functionally construct XML
