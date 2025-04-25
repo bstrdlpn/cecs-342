@@ -70,7 +70,7 @@ namespace FileTypeReport {
         // sizesIndex up to correctly select the most pertinent size
         // Ex: 3145728 bytes / 1024 twice == "3 MB"
         {
-            formattedSize /= 1024; 
+            formattedSize /= 1000; 
             sizesIndex++;
         }
         // String formatting
