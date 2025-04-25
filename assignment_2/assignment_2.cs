@@ -61,7 +61,7 @@ namespace FileTypeReport {
         // TODO: Fill in your code here.
 
         // array of strings denoting file size unit
-        string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        string[] sizes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"};
         double formattedSize = byteSize
         int sizesIndex = 0
 
