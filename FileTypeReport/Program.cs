@@ -1,4 +1,4 @@
-// Program.cs
+﻿// Program.cs
 //
 // CECS 342 Assignment 2
 // File Type Report
@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 
 namespace FileTypeReport {
@@ -19,42 +20,28 @@ namespace FileTypeReport {
     // 1. Enumerate all files in a folder recursively
     private static IEnumerable<string> EnumerateFilesRecursively(string path) {
       // TODO: Fill in your code here.
-        if (!Directory.exists (path))
+        if (!Directory.Exists (path))
         {
-            yield break // directory from path does not exist
+            Console.WriteLine($"[DEBUG] Directory not found: {path}");
+            yield break; // directory from path does not exist
         }
-        // yields all files in current directory
-        foreach (string file in Directory.EnumerateFiles (path)) 
+
+        foreach (var file in Directory.EnumerateFiles(path))
         {
-            try
-            {
-                yield return file; // our generator
-            }
-            catch (UnauthorizedAccessException)
-            {
-                continue; // skips protected folders
-            }
+            yield return file;
         }
-        // yields all files in subdirectories
-        foreach (string directory in Directory.EnumerateDirectories (path))
+
+        // if there are subdirectories
+        foreach (var directory in Directory.EnumerateDirectories(path))
         {
-            try
+            foreach (var file in EnumerateFilesRecursively(directory))
             {
-                foreach (string file in EnumerateFilesRecursively (directory))
-                {
-                    yield return file;
-                }
+                yield return file;
             }
-            catch (UnauthorizedAccessException)
-            {
-                continue;
-            }
-            catch (PathTooLongException)
-            {
-                continue; // ignores really long paths (happens if we look at root)
-            }
-        }
+        } 
+    
     }
+        
 
     // Human readable byte size
     private static string FormatByteSize(long byteSize) {
@@ -62,8 +49,8 @@ namespace FileTypeReport {
 
         // array of strings denoting file size unit
         string[] sizes = { "B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB"};
-        double formattedSize = byteSize
-        int sizesIndex = 0
+        double formattedSize = byteSize;
+        int sizesIndex = 0;
 
         while (formattedSize >= 1024 && sizesIndex < sizes.Length - 1)
         // Divide the bytesize by 1024, number of times divided moves the 
@@ -77,7 +64,7 @@ namespace FileTypeReport {
         // {0:0.##} : use first parameter formattedSize, :0.## show a digit before
         // the decimal, optional to use 2 following digits
         // Ex: byteSize 3955623 should return "3.77 MB" 
-        return string.Format("{0:0.##} {1}", formattedSize, sizes[sizesIndex])
+        return string.Format("{0:0.##} {1}", formattedSize, sizes[sizesIndex]);
     }
 
     // Create an HTML report file
@@ -90,7 +77,7 @@ namespace FileTypeReport {
         select new {
           Type = fileGroup.Key == "" ? "[no extension]" : fileGroup.Key, // Checks if extension is empty & labels it
           Count = fileGroup.Count(), //count the amount of that file type in the group
-          TotalSize = FormatByteSize(fileGroup.Sum(f => f.Length)) //use formatbytesize to display how much storage the files take up
+          TotalSize = FormatByteSize(fileGroup.Sum(f => new FileInfo(f).Length)) //use formatbytesize to display how much storage the files take up
         };
 
       // 3. Functionally construct XML
@@ -121,7 +108,7 @@ namespace FileTypeReport {
               new XElement("style", style)),
             new XElement("body", table)));
     }
-
+/*
     // Console application with two arguments
     public static void Main(string[] args) {
       try {
@@ -133,4 +120,33 @@ namespace FileTypeReport {
       }
     }
   }
+*/
+    public static void Main(string[] args) {
+  try {
+    if (args.Length < 2) {
+      Console.WriteLine($"[DEBUG] Not enough arguments (received {args.Length})");
+      Console.WriteLine("Usage: FileTypeReport <folder> <report file>");
+      return;
+    }
+
+    string inputFolder = args[0];
+    string reportFile = args[1];
+
+    Console.WriteLine($"[DEBUG] Input folder: {inputFolder}");
+    Console.WriteLine($"[DEBUG] Report output: {reportFile}");
+
+    var files = EnumerateFilesRecursively(inputFolder).ToList();
+    Console.WriteLine($"[DEBUG] Found {files.Count} files");
+
+    var report = CreateReport(files);
+    report.Save(reportFile);
+    Console.WriteLine("[DEBUG] Report saved successfully");
+  }
+  catch (Exception ex) {
+    Console.WriteLine("[ERROR] Something went wrong:");
+    Console.WriteLine(ex.Message);
+    Console.WriteLine(ex.StackTrace);
+  }
 }
+
+}}
